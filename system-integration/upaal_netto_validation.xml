@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+chan scan_add_to_basket, add_to_basket_only, pay, validate, fix_basked_after_check;
+int groceries_amount = 0;
+int scanned_amount = 0;
+clock t;
+bool rdy_to_pay=false, fix_basket=false;</declaration>
+	<template>
+		<name>BuyingGroceries</name>
+		<parameter>bool validate_customer</parameter>
+		<location id="id0" x="-807" y="-34">
+			<name x="-960" y="-42">Buying_Groceries</name>
+			<label kind="invariant" x="-909" y="-25">t&lt;=300</label>
+		</location>
+		<location id="id1" x="-433" y="-34">
+			<name x="-501" y="-68">Having_Groceries_Rdy</name>
+			<label kind="invariant" x="-416" y="-51">t&lt;=60</label>
+		</location>
+		<location id="id2" x="-433" y="144">
+			<name x="-510" y="153">Validating_groceries</name>
+			<label kind="invariant" x="-442" y="170">t&lt;=30</label>
+		</location>
+		<location id="id3" x="195" y="-34">
+			<name x="185" y="-68">Groceries_Bought</name>
+		</location>
+		<location id="id4" x="-212" y="76">
+			<name x="-297" y="42">Validation_succeeded</name>
+			<label kind="invariant" x="-187" y="76">t&lt;=20</label>
+		</location>
+		<location id="id5" x="-765" y="144">
+			<name x="-910" y="110">Validation_failed</name>
+			<urgent/>
+		</location>
+		<location id="id6" x="-433" y="340">
+			<name x="-467" y="348">Fix_Basket</name>
+			<label kind="invariant" x="-450" y="366">t&lt;=20</label>
+		</location>
+		<location id="id7" x="-433" y="42">
+			<label kind="invariant" x="-476" y="51">t&lt;=30</label>
+		</location>
+		<init ref="id0"/>
+		<transition id="id8">
+			<source ref="id6"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-535" y="212">scanned_amount!=groceries_amount</label>
+			<label kind="synchronisation" x="-501" y="229">fix_basked_after_check?</label>
+			<label kind="assignment" x="-501" y="246">scanned_amount:=
+scanned_amount+1</label>
+			<nail x="-467" y="289"/>
+			<nail x="-408" y="289"/>
+		</transition>
+		<transition id="id9">
+			<source ref="id7"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-221" y="-17">pay?</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id7"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-425" y="59">validate?</label>
+			<label kind="assignment" x="-425" y="85">t:=0</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id1"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-433" y="-17">validate_customer</label>
+			<label kind="assignment" x="-425" y="0">t:=0</label>
+		</transition>
+		<transition id="id12">
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-85" y="42">pay?</label>
+		</transition>
+		<transition id="id13">
+			<source ref="id6"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-212" y="204">scanned_amount==groceries_amount</label>
+			<label kind="synchronisation" x="-161" y="178">pay?</label>
+		</transition>
+		<transition id="id14">
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="-688" y="255">t:=0, 
+fix_basket:=true</label>
+		</transition>
+		<transition id="id15">
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-416" y="102">groceries_amount==scanned_amount</label>
+			<label kind="assignment" x="-357" y="68">t:=0</label>
+		</transition>
+		<transition id="id16">
+			<source ref="id2"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-722" y="119">groceries_amount!=scanned_amount</label>
+		</transition>
+		<transition id="id17">
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-790" y="-25">scanned_amount&gt;=1 &amp;&amp;
+groceries_amount &lt;= 200</label>
+			<label kind="synchronisation" x="-790" y="8">add_to_basket_only?</label>
+			<label kind="assignment" x="-1020" y="25">groceries_amount:=groceries_amount+1</label>
+			<nail x="-799" y="25"/>
+			<nail x="-841" y="25"/>
+		</transition>
+		<transition id="id18">
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-272" y="-68">!validate_customer</label>
+			<label kind="synchronisation" x="-212" y="-51">pay?</label>
+		</transition>
+		<transition id="id19">
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-799" y="-76">groceries_amount &lt;= 200</label>
+			<label kind="synchronisation" x="-799" y="-85">scan_add_to_basket?</label>
+			<label kind="assignment" x="-960" y="-127">groceries_amount:=groceries_amount+1,
+scanned_amount:=scanned_amount+1</label>
+			<nail x="-807" y="-85"/>
+			<nail x="-841" y="-76"/>
+		</transition>
+		<transition id="id20">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-595" y="0">scanned_amount&gt;=1</label>
+			<label kind="assignment" x="-595" y="-34">t:=0,
+rdy_to_pay:=true</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Cashier</name>
+		<declaration>// Place local declarations here.
+</declaration>
+		<location id="id21" x="0" y="0">
+		</location>
+		<init ref="id21"/>
+		<transition id="id22">
+			<source ref="id21"/>
+			<target ref="id21"/>
+			<label kind="synchronisation" x="-8" y="-63">validate!</label>
+			<nail x="-17" y="-93"/>
+			<nail x="-59" y="-59"/>
+		</transition>
+	</template>
+	<template>
+		<name>Customer</name>
+		<location id="id23" x="-102" y="0">
+		</location>
+		<init ref="id23"/>
+		<transition id="id24">
+			<source ref="id23"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-84" y="-42">fix_basket</label>
+			<label kind="synchronisation" x="-84" y="-25">fix_basked_after_check!</label>
+			<nail x="-34" y="-17"/>
+			<nail x="-34" y="17"/>
+		</transition>
+		<transition id="id25">
+			<source ref="id23"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-221" y="-34">rdy_to_pay</label>
+			<label kind="synchronisation" x="-204" y="-8">pay!</label>
+			<nail x="-170" y="-17"/>
+			<nail x="-170" y="25"/>
+		</transition>
+		<transition id="id26">
+			<source ref="id23"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-102" y="17">!rdy_to_pay</label>
+			<label kind="synchronisation" x="-136" y="68">add_to_basket_only!</label>
+			<nail x="-102" y="68"/>
+			<nail x="-136" y="51"/>
+		</transition>
+		<transition id="id27">
+			<source ref="id23"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-102" y="-51">!rdy_to_pay</label>
+			<label kind="synchronisation" x="-161" y="-76">scan_add_to_basket!</label>
+			<nail x="-102" y="-59"/>
+			<nail x="-144" y="-42"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+buying_groceries = BuyingGroceries(true);
+cashier = Cashier();
+customer = Customer();
+// List one or more processes to be composed into a system.
+system buying_groceries, cashier, customer;</system>
+	<queries>
+		<query>
+			<formula>A[] deadlock imply buying_groceries.Groceries_Bought</formula>
+			<comment>Ensures that no deadlock ocours unless we've completed the flow which is intended</comment>
+			<result outcome="success" type="quality" timestamp="2024-04-03 10:44:57 +0200">
+			</result>
+		</query>
+		<query>
+			<formula>buying_groceries.Fix_Basket --&gt; scanned_amount==groceries_amount</formula>
+			<comment>Ensures that if the customer is tasked with fix basket, they'll end up with scanned_ammount and groceries_ammount being equal</comment>
+			<option key="--diagnostic" value="1"/>
+			<result outcome="success" type="quality" timestamp="2024-04-03 10:59:17 +0200">
+				<option key="--diagnostic" value="1"/>
+			</result>
+		</query>
+		<query>
+			<formula>A[] buying_groceries.Having_Groceries_Rdy imply rdy_to_pay==true</formula>
+			<comment>Ensures that we can always end up paying if the customer reaches Having_Groceries_Rdy</comment>
+			<result outcome="success" type="quality" timestamp="2024-04-03 11:02:14 +0200">
+			</result>
+		</query>
+		<query>
+			<formula>A[] buying_groceries.Buying_Groceries imply not (t&gt;300)</formula>
+			<comment>Ensures that the time cannot exceed 300 when being in BuyingGroceries</comment>
+			<option key="--diagnostic" value="1"/>
+			<result outcome="success" type="quality" timestamp="2024-04-03 11:05:55 +0200">
+				<option key="--diagnostic" value="1"/>
+			</result>
+		</query>
+		<query>
+			<formula>A[] buying_groceries.Validation_failed imply groceries_amount!=scanned_amount</formula>
+			<comment>Ensures that we can only be in Validation_succeeded if and only if groceries_amount and scanned_amount are not equal</comment>
+			<result outcome="success" type="quality" timestamp="2024-04-03 11:07:19 +0200">
+			</result>
+		</query>
+		<query>
+			<formula>A[] buying_groceries.Validation_succeeded imply groceries_amount==scanned_amount</formula>
+			<comment>Ensures that we can only be in Validation_succeeded if and only if groceries_amount and scanned_amount are equal</comment>
+			<result outcome="success" type="quality" timestamp="2024-04-03 11:07:36 +0200">
+			</result>
+		</query>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+	</queries>
+</nta>

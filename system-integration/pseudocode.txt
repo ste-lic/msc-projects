@@ -1,0 +1,62 @@
+array executed_traces = []
+array rules = []
+dictionary params = {}
+
+array pending_traces = []
+
+clock.set_time(0)
+
+model_running = True
+while model_running:
+    executed_tr = execute_trace()
+    execute_traces.append(executed_tr)
+    if executed_tr in pending_traces:
+        pending_traces.pop(executed_tr)
+    clock.update(executed_tr.get_time_conditions())
+
+    pending_traces.append(execute_traces.get_following_trace())
+
+    params.update(executed_tr.get_param_instructions())
+
+    # check rules
+    for i in rules:
+        parsed_rule = i.parse_rule()
+        
+        if parsed_rule.get_category() == "check_deadlock":
+            # check for deadlock - only makes sense if this is the last step
+            if (len(pending_traces) > 0 && executed_tr.get_next().is_available() == False)
+                model_running = False
+                return "Deadlock is reached!"
+            elif (len(pending_traces) == 0 && executed_tr.get_next().is_available() == False)
+                # reached the end!
+                model_running = False
+                return "No deadlocks!"
+            else:
+                model_running = True
+                return "Model not finished running yet, so no assessment possible"
+
+        elif parsed_rule.get_category() == "check_execution_requirements":
+            # example for such a rule: "B can only be executed if at any state A has been executed"
+            array needed_executed_traces = parsed_rule.get_req()
+            for i in execute_trace:
+                if i in needed_executed_traces:
+                    needed_executed_traces.pop(i)
+            if len(needed_executed_traces) > 0:
+                return "Rule " + parsed_rule.get_name() + " is violated!"
+            else:
+                return "Rule " + parsed_rule.get_name() + " is okay."
+
+        elif parsed_rule.get_category() == "check_clock":
+            # example for such a rule: "Execution of C implies clock < 200"
+            if parsed_rule.get_time_constraint() >=  clock.get_time()
+                return "No time violation for rule " + parsed_rule.get_name()
+            else:
+                return "Time violation for rule " + parsed_rule.get_name() + "!"
+
+        elif parsed_rule.get_category() == "check_parameter_requirements":
+            # example for such a rule: "Execution of D implies param1 == param2"
+            param_to_check = parsed_rule.get_req_param()
+            if parsed_rule.get_target_value() == params.get(param_to_check).get_value():
+                return "No violation for rule " + parsed_rule.get_name()
+            else:
+                return "Violation for " + parsed_rule.get_name() + "!"
